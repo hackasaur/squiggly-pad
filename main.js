@@ -1,4 +1,6 @@
 import * as canvasTools from './modules/canvas tools.js';
+import * as bezier from './modules/bezier.js';
+
 function main() {
 	const canvas = document.getElementById('scene')
 	if (canvas.getContext) {
@@ -10,121 +12,46 @@ function main() {
 		// ctx.imageSmoothingEnabled = false
 		// ctx.translate(0.5, 0.5)
 
-		let mouseCoords
-		let pos = {}
-		let startPos, endPos
 
-		function setPosition(e) {
-			pos.x = e.x - canvas.offsetLeft;
-			pos.y = e.y - canvas.offsetTop;
+		let mouseCoords
+		let prevPos, currentPos = {}
+
+		function getMousePosition(mouseEvent) {
+			let pos = {}
+			pos.x = mouseEvent.x - canvas.offsetLeft;
+			pos.y = mouseEvent.y - canvas.offsetTop;
+			return pos
 		}
 
-		function draw(e) {
+		function mouseDraw(mouseEvent, prevPosition, position) {
 			// mouse left button must be pressed
-			if (e.buttons !== 1) { setPosition(e); return; };
+			if (mouseEvent.buttons !== 1) { return; };
 
 			ctx.beginPath(); // begin
-
 			ctx.lineWidth = 5;
 			ctx.lineCap = 'round';
-			ctx.moveTo(pos.x, pos.y); // from
-			setPosition(e);
-			ctx.lineTo(pos.x, pos.y); // to
+			ctx.moveTo(prevPosition.x, prevPosition.y); // from
+			ctx.lineTo(position.x, position.y); // to
 			ctx.stroke()
 			ctx.closePath()
 		}
 
+		// function recordStroke(e){
+		// 	if (e.buttons !== 1) { return};
+		// }
+
 		canvas.addEventListener('mousedown', (event) => {
-			setPosition(event)
-			startPos = pos
 		})
 
 		canvas.addEventListener('mousemove', (event) => {
 			mouseCoords = canvasTools.createPoint(event.x - canvas.offsetLeft, event.y - canvas.offsetTop)
-			draw(event)
+			currentPos = getMousePosition(event)
+			mouseDraw(event, prevPos, currentPos)
+			prevPos = getMousePosition(event)
 		})
 
 		canvas.addEventListener('mouseup', (event) => {
-			setPosition(event)
-			endPos = pos
-			deltaX = (endPos.x - startPos.x)/10
-			// let controlPoints = []
-			// for(i=0; i<10; i++){
-			// 	controlPoints	
-			// }
-			// let controlPoints = [p1, p2, p3, p4]
-			// let endPoint = controlPoints[controlPoints.length - 1]
-			// let bezierPoint = bezierPointNonRecursive(controlPoints)
-
-
-			// canvasTools.paintBackground(ctx, '#353347', ctx.canvas.width, ctx.canvas.height)
-			// drawBezierPointOnCanvas(bezierPoint, endPoint)
-			// drawControlPoints(controlPoints)
-
 		})
-
-		function bezierLinear(point1, point2) {
-			return canvasTools.createPointObject(
-				(t) => point1.x(t) + (point2.x(t) - point1.x(t)) * t,
-				(t) => point1.y(t) + (point2.y(t) - point1.y(t)) * t)
-		}
-
-		function bezierInsidePoints(points) {
-			let insidePoints = []
-			for (let i = 0; i < points.length - 1; i++) {
-				insidePoints.push(bezierLinear(points[i], points[i + 1]))
-			}
-			return insidePoints
-		}
-
-		function bezierPointRecursive(points) {
-			if (points.length > 1) {
-				points = bezierInsidePoints(points)
-				bezierPointRecursive(points)
-			}
-			else { return points[0] }
-		}
-
-		function bezierPointNonRecursive(controlPoints) {
-			let points = controlPoints
-			while (points.length > 1) {
-				for (let point of points) {
-					console.log(point.x(0))
-					console.log(point.y(0))
-				}
-				console.log('------')
-				points = bezierInsidePoints(points)
-
-			}
-			return points[0]
-		}
-
-		function drawBezierPointOnCanvas(bezierPoint, endPoint) {
-			ctx.beginPath()
-			ctx.moveTo(bezierPoint.x(0), bezierPoint.y(0))
-			for (let t = 0; t <= 1; t += 0.01) {
-				ctx.lineTo(bezierPoint.x(t), bezierPoint.y(t))
-				// console.log(bezierPoint.x(t), bezierPoint.y(t))
-			}
-			ctx.strokeStyle = 'white'
-			ctx.lineWidth = 3
-			ctx.lineCap = 'round'
-			ctx.stroke()
-			ctx.closePath()
-		}
-
-		function drawControlPoints(points) {
-			//assuming each x,y are funcitons of t
-			for (let point of points) {
-				ctx.beginPath()
-				ctx.arc(point.x(0), point.y(0), 8, 0, 2 * Math.PI)
-				ctx.strokeStyle = 'skyblue'
-				ctx.lineWidth = 2
-				ctx.stroke()
-				ctx.closePath()
-			}
-
-		}
 
 		//assuming each coordinate i.e x, y is a function of t. because the we need p1.x to be a funciton else we'll have an exception
 		let p1 = canvasTools.createPointObject((t) => 100, (t) => 100)
@@ -133,13 +60,14 @@ function main() {
 		let p4 = canvasTools.createPointObject((t) => 600, (t) => 400)
 
 		let controlPoints = [p1, p2, p3, p4]
-		let endPoint = controlPoints[controlPoints.length - 1]
-		let bezierPoint = bezierPointNonRecursive(controlPoints)
-
+		let bezierPoint = bezier.getBezierPoint(controlPoints)
+		let bezierSplinePoints = bezier.getBezierSpline(controlPoints, 3)
 
 		canvasTools.paintBackground(ctx, '#353347', ctx.canvas.width, ctx.canvas.height)
-		drawBezierPointOnCanvas(bezierPoint, endPoint)
-		drawControlPoints(controlPoints)
+
+		bezier.drawBezierPointOnCanvas(ctx, bezierPoint, 0.01)
+		bezier.drawBezierPointsOnCanvas(ctx, bezierSplinePoints, 0.2)
+		bezier.drawControlPoints(ctx, controlPoints)
 
 		// function animationLoop() {
 		// 	// if (mouseCoords) {
@@ -154,7 +82,6 @@ function main() {
 		// 	window.requestAnimationFrame(animationLoop)
 		// }
 		// animationLoop()
-
 	}
 }
 window.addEventListener('load', main)
