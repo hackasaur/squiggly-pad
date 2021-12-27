@@ -1,3 +1,4 @@
+import * as canvasTools from './canvas tools.js';
 
 export function bezierLinear(point1, point2) {
     return canvasTools.createPointObject(
@@ -33,6 +34,7 @@ export function getBezierSpline(points, order) {
             }
         }
 
+
         else if (points.length - i >= order) {
             for (let offset = 0; offset < order; offset++) { //add points equal to order to pointsSubGroup
                 pointSubGroup.push(points[i + offset])
@@ -43,41 +45,38 @@ export function getBezierSpline(points, order) {
     return bezierPoints
 }
 
-export function drawBezierPointOnCanvas(ctx, bezierPoint, res) {
-    if (res >= 1 || res == 0) {
-        console.log('res has to be between 0 and 1')
-        return
-    }
-
+export function drawBezierPointOnCanvas(ctx, bezierPoint, parts) {
     ctx.beginPath()
     ctx.moveTo(bezierPoint.x(0), bezierPoint.y(0))
-    for (let t = 0; t <= 1; t += 0.01) {
+    for (let r = 0; r <= parts; r++) {
+        let t = r * 1 / parts
         ctx.lineTo(bezierPoint.x(t), bezierPoint.y(t))
     }
     ctx.strokeStyle = 'white'
     ctx.lineWidth = 3
-    // ctx.lineCap = 'round'
+    ctx.lineCap = 'round'
     ctx.stroke()
     ctx.closePath()
 }
 
-export function drawBezierPointsOnCanvas(ctx, bezierPoints, res) {
-    if (res >= 1 || res == 0) {
-        console.log('res has to be between 0 and 1')
-        return
-    }
-    ctx.beginPath()
-    ctx.moveTo(bezierPoint.x(0), bezierPoint.y(0))
+export function drawBezierPointsOnCanvas(ctx, bezierPoints, parts) {
+    let path = new Path2D
+    ctx.beginPath(path)
+
+    ctx.moveTo(bezierPoints[0].x(0), bezierPoints[0].y(0))
+
     for (let bezierPoint of bezierPoints) {
-        for (let t = 0; t <= 1; t += res) {
+        for (let r = 0; r <= parts; r++) {
+            let t = r * 1 / parts
             ctx.lineTo(bezierPoint.x(t), bezierPoint.y(t))
         }
     }
+
     ctx.strokeStyle = 'white'
     ctx.lineWidth = 3
-    // ctx.lineCap = 'round'
+    ctx.lineCap = 'round'
     ctx.stroke()
-    ctx.closePath()
+    ctx.closePath(path)
 }
 
 export function drawControlPoints(ctx, points) {
@@ -90,4 +89,15 @@ export function drawControlPoints(ctx, points) {
         ctx.stroke()
         ctx.closePath()
     }
+}
+
+export function getCurvePointsFromBezierPoint(bezierPoints, parts) {
+    let curvePoints = []
+    for (let bezierPoint of bezierPoints) {
+        for (let r = 0; r <= parts; r++) {
+            let t = r * 1 / parts
+            curvePoints.push(canvasTools.createPoint(bezierPoint.x(t), bezierPoint.y(t)))
+        }
+    }
+    return curvePoints
 }
