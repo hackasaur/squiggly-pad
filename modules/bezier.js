@@ -84,6 +84,7 @@ export function drawControlPoints(ctx, points) {
     for (let point of points) {
         ctx.beginPath()
         ctx.arc(point.x(0), point.y(0), 8, 0, 2 * Math.PI)
+        console.log(point.x(0), point.y(0))
         ctx.strokeStyle = 'skyblue'
         ctx.lineWidth = 2
         ctx.stroke()
@@ -91,13 +92,11 @@ export function drawControlPoints(ctx, points) {
     }
 }
 
-export function getCurvePointsFromBezierPoint(bezierPoints, parts) {
+export function getCurvePointsFromBezierPoint(bezierPoint, parts) {
     let curvePoints = []
-    for (let bezierPoint of bezierPoints) {
-        for (let r = 0; r <= parts; r++) {
-            let t = r * 1 / parts
-            curvePoints.push(canvasTools.createPoint(bezierPoint.x(t), bezierPoint.y(t)))
-        }
+    for (let r = 0; r <= parts; r++) {
+        let t = r * 1 / parts
+        curvePoints.push(canvasTools.createPoint(bezierPoint.x(t), bezierPoint.y(t)))
     }
     return curvePoints
 }
