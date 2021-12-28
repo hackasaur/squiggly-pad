@@ -1,6 +1,5 @@
 import * as canvasTools from './modules/canvas tools.js'
 import * as bezier from './modules/bezier.js'
-import * as curveAnim from './modules/curveAnim.js'
 import * as squiggle from './modules/squiggle.js'
 
 function main() {
@@ -9,8 +8,8 @@ function main() {
 		let yPadding = 140
 		let xPadding = 300
 		const ctx = canvas.getContext('2d')
-		ctx.canvas.width = window.screen.width - xPadding
-		ctx.canvas.height = window.screen.height - yPadding
+		ctx.canvas.width = window.innerWidth - xPadding
+		ctx.canvas.height = window.innerHeight - yPadding
 		// ctx.imageSmoothingEnabled = false
 		// ctx.translate(0.5, 0.5)
 
@@ -47,7 +46,7 @@ function main() {
 		// bezier.drawControlPoints(ctx, controlPoints)
 
 		canvasTools.paintBackground(ctx, '#353347', ctx.canvas.width, ctx.canvas.height)
-		let pad = squiggle.createScratchPadCanvas(canvas, ctx, 'green', 2)
+		let pad = squiggle.createScratchPadCanvas(canvas, ctx, 'white', 3)
 		pad.properties.autoSmoothing = true
 
 		function animationLoop() {

@@ -84,7 +84,6 @@ export function drawControlPoints(ctx, points) {
     for (let point of points) {
         ctx.beginPath()
         ctx.arc(point.x(0), point.y(0), 8, 0, 2 * Math.PI)
-        console.log(point.x(0), point.y(0))
         ctx.strokeStyle = 'skyblue'
         ctx.lineWidth = 2
         ctx.stroke()

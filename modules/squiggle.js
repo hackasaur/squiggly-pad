@@ -29,7 +29,6 @@ function divideStroke(stroke, parts) {
         if (i === 0) {
             continue
         }
-        console.log(stroke[i])
         points.push({ x: (t) => stroke[i][0], y: (t) => stroke[i][1] })
     }
     let endPoint = stroke[stroke.length - 1]
@@ -93,7 +92,6 @@ export const createScratchPadCanvas = (canvas, ctx, strokeColor = 'white', strok
             strokes.push(bezierStrokePoints)
             stroke = []
         }
-        console.log(strokes)
         if (stroke.length !== 0) {
             let strokeVar = [...stroke]
             strokes.push(strokeVar)
